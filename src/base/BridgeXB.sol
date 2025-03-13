@@ -49,7 +49,7 @@ abstract contract BridgeXB {
         _;
     }
 
-    function mintToken(uint256 tokenAmount, address token, address to, bytes32 txHash) internal InvalidRecipient(to) OnlyAdmin OnlyValidToken(token) returns(uint256, bytes32) {
+    function tokenIssuance(uint256 tokenAmount, address token, address to, bytes32 txHash) internal InvalidRecipient(to) OnlyAdmin OnlyValidToken(token) returns(uint256, bytes32) {
         if(s_processedTx[txHash] == true) revert("tx has been processed");
         if(tokenAmount <= 0) revert("token amount must be greater than zero");
 
@@ -68,7 +68,7 @@ abstract contract BridgeXB {
      * @param amount_ - amount to release
      * @param txHash_ - tx hash to release
      */
-    function burnToken(address token_, address to_, uint256 amount_, bytes32 txHash_) internal returns(uint256, bytes32)  {
+    function burningToken(address token_, address to_, uint256 amount_, bytes32 txHash_) internal returns(uint256, bytes32)  {
        
     }
 }
