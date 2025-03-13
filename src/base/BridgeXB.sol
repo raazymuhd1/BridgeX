@@ -37,6 +37,11 @@ abstract contract BridgeXB {
         _;
     }
 
+    modifier InvalidRecipient(address recipient) {
+        if(recipient == address(0)) revert("Invalid recipient");
+        _;
+    }
+
     modifier EnoughAmount(address user_, address token, uint256 amount_) {
         s_token = IERC20(token);
         uint userBalance = s_token.balanceOf(user_);
@@ -44,10 +49,15 @@ abstract contract BridgeXB {
         _;
     }
 
-    function mintToken(uint256 tokenAmount, address token, address to, bytes32 txHash) internal OnlyAdmin OnlyValidToken(token) returns(uint256, bytes32) {
-        IERC20(token).mintToken(to, tokenAmount);
+    function mintToken(uint256 tokenAmount, address token, address to, bytes32 txHash) internal InvalidRecipient(to) OnlyAdmin OnlyValidToken(token) returns(uint256, bytes32) {
+        if(s_processedTx[txHash] == true) revert("tx has been processed");
+        if(tokenAmount <= 0) revert("token amount must be greater than zero");
+
         s_processedTx[txHash] = true;
         s_mintedTokens[to] += tokenAmount;
+
+        bool minted = IERC20(token).mintToken(to, tokenAmount);
+        if(!minted) revert("Mint Failed");
         emit TokenMinted(tokenAmount, msg.sender, txHash);
     }
 

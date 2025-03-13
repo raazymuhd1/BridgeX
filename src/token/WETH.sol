@@ -10,8 +10,9 @@ contract WETH is ERC20 {
 
     }
 
-    function mintToken(address to, uint256 amount) external {
+    function mintToken(address to, uint256 amount) external returns(bool) {
         _mint(to, amount);
+        return true;
     }
 
     function burnToken(address to, uint256 amount) external {}
