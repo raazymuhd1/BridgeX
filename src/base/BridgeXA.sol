@@ -13,6 +13,7 @@ abstract contract BridgeXA {
     address private s_admin;
     mapping(address user_ => uint256 balance_) private s_lockedTokens;
     mapping(bytes32 => bool) private s_processedTx;
+    mapping(address token_ => bool isSupported) private s_supportedToken;
 
     constructor(address initAdmin_) {
         s_admin = initAdmin_;
@@ -32,6 +33,11 @@ abstract contract BridgeXA {
         _;
     }
 
+    modifier OnlyValidToken(address token) {
+        if(token == address(0)) revert("Invalid token");
+        _;
+    }
+
     modifier EnoughAmount(address user_, address token, uint256 amount_) {
         s_token = IERC20(token);
         uint userBalance = s_token.balanceOf(user_);
@@ -39,7 +45,7 @@ abstract contract BridgeXA {
         _;
     }
 
-    function lockDeposit(uint256 tokenAmount, address token) internal EnoughAmount(msg.sender, token, tokenAmount) returns(uint256 amount, bytes32 hashTx) {
+    function lockDeposit(uint256 tokenAmount, address token) internal OnlyValidToken(token) EnoughAmount(msg.sender, token, tokenAmount) returns(uint256 amount, bytes32 hashTx) {
         bool success = IERC20(token).transferFrom(msg.sender, address(this), amount);
         if(!success) revert BridgeXA__TransferFailed();
 
